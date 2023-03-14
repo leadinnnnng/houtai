@@ -51,20 +51,34 @@
     </el-table>
     <el-dialog title="收货地址" :visible.sync="dialogFormVisible">
       <el-form :model="data">
-        <el-form-item label="活动名称" :label-width="formLabelWidth">
+        <el-form-item label="标题" :label-width="formLabelWidth">
           <el-input v-model="form.name" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="活动名称" :label-width="formLabelWidth">
+        <el-form-item label="描述" :label-width="formLabelWidth">
           <el-input
             type="textarea"
             v-model="form.name"
             autocomplete="off"
           ></el-input>
         </el-form-item>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="首页中图">
+              <!-- 中图 -->
+              <Upload v-model="form.midImg" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="首页中图">
+              <!-- 大图 -->
+              <Upload v-model="form.bigImg" />
+            </el-form-item>
+          </el-col>
+        </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="dialogFormVisible = false"
+        <el-button type="primary" @click="editBannerConfirm = false"
           >确 定</el-button
         >
       </div>
@@ -75,13 +89,24 @@
 <script>
 import { getBannerApi } from "@/api/banner";
 import { server_URL } from "@/urlConfig";
+import Upload from "@/components/Upload.vue";
 export default {
+  components: { Upload },
   data() {
     return {
       data: [],
       dialogFormVisible: true,
-      form: [],
+      form: {
+        id: "",
+        midImg: "",
+        bigImg: "",
+        title: "",
+        description: "",
+      },
     };
+  },
+  compoennts: {
+    Upload,
   },
   created() {
     this.fetchData();
@@ -95,6 +120,30 @@ export default {
         item.midImg = server_URL + item.midImg;
       }
       console.log(this.data);
+    },
+    editBannerHandle(bannerInfo) {
+      // 1. 将 bannerInfo 的数据给 form 2. 打开 dialog
+      this.form = { ...bannerInfo };
+
+      this.dialogFormVisible = true;
+    },
+    editBannerConfirm() {
+      // 从表单里面拿到用户修改的数据，发送给服务器
+      // 因为 api 文档要求三个首页标语都要发送过去，哪怕只改了其中一个
+      let arr = [...this.data];
+      for (var i = 0; i < arr.length; i++) {
+        if (arr[i].id == this.form.id) {
+          arr[i] = this.form;
+        }
+      }
+      setBanner(arr).then((res) => {
+        this.dialogFormVisible = false; // 关闭掉对话框
+        this.$message({
+          message: "修改成功",
+          type: "success",
+        });
+        this.fetchData();
+      });
     },
   },
 };
