@@ -6,7 +6,7 @@
       action="/api/upload"
       :show-file-list="false"
       :on-success="handleAvatarSuccess"
-      :before-upload="beforeAvatarUpload"
+      :headers="headers"
     >
       <img v-if="value" :src="imageUrl" class="avatar" />
       <i v-else class="el-icon-plus avatar-uploader-icon"></i>
@@ -31,7 +31,13 @@ export default {
       };
     },
   },
-  methods: {},
+  methods: {
+    handleAvatarSuccess(res) {
+      if (!res.code && res.data) {
+        this.$emit("input", res.data);
+      }
+    },
+  },
 };
 </script>
 

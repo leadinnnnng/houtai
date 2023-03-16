@@ -6,3 +6,10 @@ export function getBannerApi() {
     method: "get",
   });
 }
+export function setBanner(data) {
+  return request({
+    url: "/api/banner",
+    method: "post",
+    data,
+  });
+}

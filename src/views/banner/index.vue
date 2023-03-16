@@ -1,6 +1,6 @@
 <template>
-  <div class="banner">
-    <el-table :data="data" style="width: 100%">
+  <div class="banner-container">
+    <el-table :data="data" style="width: 100%" border>
       <el-table-column label="序号" width="60">
         <template slot-scope="scope">
           <span style="margin-left: 10px">{{ scope.$index + 1 }}</span>
@@ -36,7 +36,7 @@
       </el-table-column>
 
       <el-table-column label="操作" align="center">
-        <template>
+        <template slot-scope="scope">
           <el-tooltip
             class="item"
             effect="dark"
@@ -44,20 +44,27 @@
             placement="top"
             :hide-after="2000"
           >
-            <el-button type="primary" icon="el-icon-edit" circle></el-button>
+            <el-button
+              type="primary"
+              icon="el-icon-edit"
+              circle
+              size="mini"
+              @click="editBannerHandle(scope.row)"
+            ></el-button>
           </el-tooltip>
         </template>
       </el-table-column>
     </el-table>
-    <el-dialog title="收货地址" :visible.sync="dialogFormVisible">
-      <el-form :model="data">
-        <el-form-item label="标题" :label-width="formLabelWidth">
-          <el-input v-model="form.name" autocomplete="off"></el-input>
+
+    <el-dialog title="請編輯信息" :visible.sync="dialogFormVisible" top="5vh">
+      <el-form :model="form">
+        <el-form-item label="标题">
+          <el-input v-model="form.title"></el-input>
         </el-form-item>
-        <el-form-item label="描述" :label-width="formLabelWidth">
+        <el-form-item label="描述">
           <el-input
             type="textarea"
-            v-model="form.name"
+            v-model="form.description"
             autocomplete="off"
           ></el-input>
         </el-form-item>
@@ -78,16 +85,14 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="editBannerConfirm = false"
-          >确 定</el-button
-        >
+        <el-button type="primary" @click="editBannerConfirm()">确 定</el-button>
       </div>
     </el-dialog>
   </div>
 </template>
 
 <script>
-import { getBannerApi } from "@/api/banner";
+import { getBannerApi, setBanner } from "@/api/banner";
 import { server_URL } from "@/urlConfig";
 import Upload from "@/components/Upload.vue";
 export default {
@@ -95,7 +100,7 @@ export default {
   data() {
     return {
       data: [],
-      dialogFormVisible: true,
+      dialogFormVisible: false,
       form: {
         id: "",
         midImg: "",
@@ -119,17 +124,13 @@ export default {
         item.bigImg = server_URL + item.bigImg;
         item.midImg = server_URL + item.midImg;
       }
-      console.log(this.data);
     },
     editBannerHandle(bannerInfo) {
-      // 1. 将 bannerInfo 的数据给 form 2. 打开 dialog
       this.form = { ...bannerInfo };
 
       this.dialogFormVisible = true;
     },
     editBannerConfirm() {
-      // 从表单里面拿到用户修改的数据，发送给服务器
-      // 因为 api 文档要求三个首页标语都要发送过去，哪怕只改了其中一个
       let arr = [...this.data];
       for (var i = 0; i < arr.length; i++) {
         if (arr[i].id == this.form.id) {
