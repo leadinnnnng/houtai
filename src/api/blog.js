@@ -10,3 +10,10 @@ export function getBlog(page = 1, limit = 10) {
     },
   });
 }
+
+export function delOneBlog(id) {
+  return request({
+    url: `/api/blog/${id}`,
+    method: "delete",
+  });
+}
