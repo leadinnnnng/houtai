@@ -56,7 +56,9 @@
       </el-table-column>
       <el-table-column label="所属分类" width="150" align="center">
         <template slot-scope="scope">
-          <span style="margin-left: 10px">{{ scope.row.category.name }}</span>
+          <span style="margin-left: 10px">{{
+            scope.row.category !== null ? scope.row.category.name : "未分类"
+          }}</span>
         </template>
       </el-table-column>
       <el-table-column label="创建日期" width="150" align="center">
